@@ -1,3 +1,7 @@
+<p align="center">
+    <a target="_blank"><img alt='ShareIt Logo' src='images/ShareIt_Logo.jpg' width="500" height="500"/></a>
+</p>
+
 # ShareIt - A rental service for all things
 
 [**Public Domain**](https://nice-pebble-069dc3c00.5.azurestaticapps.net)
