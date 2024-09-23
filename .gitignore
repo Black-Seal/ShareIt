@@ -1,3 +1,6 @@
+.vs
+**/__pycache__/
+
 # MacOS
 .DS_Store
 **/.DS_Store
@@ -6,5 +9,3 @@
 
 # Windows
 Thumbs.db
-
-.vs
