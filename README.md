@@ -1,5 +1,5 @@
 <p align="center">
-    <a target="_blank"><img alt='ShareIt Logo' src='images/ShareIt_Logo.jpg' width="500" height="500"/></a>
+    <a target="_blank"><img alt='ShareIt Logo' src='images/ShareIt_Logo.jpg' width="200" height="200"/></a>
 </p>
 
 # ShareIt - A rental service for all things
