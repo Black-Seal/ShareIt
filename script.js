@@ -8,7 +8,7 @@ document.getElementById('submitUser').addEventListener('submit', function(event)
     const address = document.getElementById('address').value;
     const contactnumber = document.getElementById('contactnumber').value;
 
-    fetch('https://<your-function-app-name>.azurewebsites.net/api/register-user', {
+    fetch('https://shareit-backend.azurewebsites.net/api/register-user', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
