@@ -1,29 +1,33 @@
-document.getElementById('submitItem').addEventListener('submit', function(event) {
+document.getElementById('submitUser').addEventListener('submit', function(event) {
     event.preventDefault();
 
-    const item_name = document.getElementById('item_name').value;
-    const description = document.getElementById('description').value;
-    const price = document.getElementById('price').value;
-    const owner = document.getElementById('owner').value;
+    const userid = document.getElementById('userid').value;
+    const firstname = document.getElementById('firstname').value;
+    const lastname = document.getElementById('lastname').value;
+    const email = document.getElementById('email').value;
+    const address = document.getElementById('address').value;
+    const contactnumber = document.getElementById('contactnumber').value;
 
-    fetch('https://<your-function-url>/api/create-item', {
+    fetch('https://<your-function-app-name>.azurewebsites.net/api/register-user', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            name: item_name,
-            description: description,
-            price: price,
-            owner: owner
+            userid: userid,
+            firstname: firstname,
+            lastname: lastname,
+            email: email,
+            address: address,
+            contactnumber: contactnumber
         })
     })
     .then(response => response.json())
     .then(data => {
-        document.getElementById('response').innerText = data.message;
+        document.getElementById('registeruser').innerText = data.message;
     })
     .catch(error => {
-        document.getElementById('response').innerText = "Error submitting item!";
+        document.getElementById('registeruser').innerText = "Error registering user!";
         console.error('Error:', error);
     });
 });
