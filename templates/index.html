@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="ShareIt - A platform for sharing underutilized resources in your community.">
     <title>ShareIt - Share Your Resources</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
 </head>
 
 <body>
@@ -17,9 +17,9 @@
             <p>Sharing is Caring. Borrow, Lend, and Save Together.</p>
             <nav>
                 <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="about.html">About</a></li>
-                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="{{ url_for('home') }}">Home</a></li>
+                    <li><a href="{{ url_for('about') }}">About</a></li>
+                    <li><a href="{{ url_for('contact') }}">Contact</a></li>
                 </ul>
             </nav>
         </div>
@@ -28,7 +28,7 @@
     <section id="about">
         <div class="container" align="center">
             <h2>About ShareIt</h2>
-            <a target="_blank"><img src="images/ShareIt_Logo.jpg" alt="Team Picture"></a>
+            <img src="{{ url_for('static', filename='images/ShareIt_Logo.jpg') }}" alt="ShareIt Logo">
             <p>ShareIt is an innovative platform that helps community members share underutilized resources, allowing you to list and loan unused items. It’s like a digital library for tools, equipment, and household goods. By promoting sustainable resource sharing, we aim to reduce waste and the need for redundant purchases.</p>
         </div>
     </section>
@@ -92,6 +92,5 @@
         </div>
     </footer>
 
-    <script src="script.js"></script>
 </body>
 </html>

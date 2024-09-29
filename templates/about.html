@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="About ShareIt">
     <title>About ShareIt</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
 </head>
 
 <body>
@@ -16,9 +16,9 @@
             <h1>About ShareIt</h1>
             <nav>
                 <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="about.html">About</a></li>
-                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="{{ url_for('home') }}">Home</a></li>
+                    <li><a href="{{ url_for('about') }}">About</a></li>
+                    <li><a href="{{ url_for('contact') }}">Contact</a></li>
                 </ul>
             </nav>
         </div>
@@ -27,7 +27,7 @@
     <section>
         <div class="container" align="center">
             <h2>About Our Platform</h2>
-            <a target="_blank"><img src="images/portrait.jpg" alt="Team Picture"></a>
+            <img src="{{ url_for('static', filename='images/portrait.jpg') }}" alt="Team Picture">
             <p>
                 ShareIt is an innovative platform developed by a group of budding entrepreneurs from SIT.
                 The platform empowers individuals to list underutilized items such as tools, equipment, and household goods for rent, making them available to others in the community.
