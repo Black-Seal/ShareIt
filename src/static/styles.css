@@ -105,3 +105,50 @@ button {
 button:hover {
     background-color: #45a049; /* Darker green on hover */
 }
+
+/* Center the form and give it a max-width for better layout on larger screens */
+.registration-form {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Style individual form groups */
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+/* Ensure labels and inputs are vertically aligned */
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+/* Style response message */
+.response-message {
+    margin-top: 15px;
+    color: green; /* or red for errors */
+    font-weight: bold;
+}
+
+/* Validation feedback */
+input:invalid {
+    border-color: red;
+}
+
+input:valid {
+    border-color: green;
+}

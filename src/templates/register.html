@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Register for ShareIt - A platform for sharing underutilized resources.">
+    <title>Register - ShareIt</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <h1>Register for ShareIt</h1>
+            <p>Create your account and start sharing today.</p>
+        </div>
+    </header>
+
+    <main>
+        <div class="container" align="center">
+            <form action="{{ url_for('register') }}" method="post" id="submitUser" class="registration-form">
+                <div class="form-group">
+                    <label for="userid">User ID:</label>
+                    <input type="text" id="userid" name="userid" placeholder="User ID" required>
+                </div>
+                <div class="form-group">
+                    <label for="firstname">First Name:</label>
+                    <input type="text" id="firstname" name="firstname" placeholder="First Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="lastname">Last Name:</label>
+                    <input type="text" id="lastname" name="lastname" placeholder="Last Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <label for="address">Address:</label>
+                    <input type="text" id="address" name="address" placeholder="Address" required>
+                </div>
+                <div class="form-group">
+                    <label for="contactnumber">Contact Number:</label>
+                    <input type="text" id="contactnumber" name="contactnumber" placeholder="Contact Number" required>
+                </div>
+                <button type="submit">Register</button>
+                <p id="registeruser" class="response-message"></p>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 ShareIt. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>
