@@ -8,7 +8,7 @@ DATABASE_CONNECTION_STRING = (
     'Server=tcp:sit-dev-shareit.database.windows.net,1433;'
     'Database=dev-shareit;'
     'Uid=jjask-admin;'
-    'Pwd={5h:oF9I!2dfH7hB};'
+    'Pwd={5h:oF9I!2dfH7hB};'    # SENSITIVE
     'Encrypt=yes;'
     'TrustServerCertificate=no;'
     'Connection Timeout=30;'
@@ -49,7 +49,8 @@ def register():
         if conn:
             try:
                 cursor = conn.cursor()
-                # Insert user data into the 'users' table (excluding UserID as it's auto-incrementing)
+                # SQL script to insert user data into the 'users' table
+                # UserID is PK so excluded here
                 query = """
                 INSERT INTO dbo.users (FirstName, LastName, Email, Address, Contact)
                 VALUES (?, ?, ?, ?, ?)
@@ -64,4 +65,4 @@ def register():
     return render_template("register.html")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True)    # Enable debug first so can track errors
