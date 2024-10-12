@@ -31,6 +31,9 @@
 - **Database**: Azure SQL Database (PaaS)
 - **Cloud**: Microsoft Azure for SQL Database services
 
+## Getting started
+[Download PYODBC driver](https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-ver16)  
+
 We'll be using venv as our virtual environment
 ```
 pip install virtualenv
