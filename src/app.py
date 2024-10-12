@@ -68,5 +68,11 @@ def register():
 def listing():
     return render_template("listing.html")
 
+@app.route('/listitem', methods=['GET', 'POST'])
+def listitem():
+    # Logic to render the page where users can add a new listing
+    return render_template('listitem.html')  # Assuming this is the page for adding a new listing
+
+
 if __name__ == "__main__":
     app.run(debug=True)    # Enable debug first so can track errors
