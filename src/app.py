@@ -2,9 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from werkzeug.security import generate_password_hash, check_password_hash
 import pyodbc
 import re
+import os
 from datetime import datetime
 
 app = Flask(__name__)
+
+app.secret_key = os.getenv('SECRET_KEY', 'fallback-secret-key')  # 'fallback-secret-key' is used if env variable is not set
 
 DATABASE_CONNECTION_STRING = (
     'Driver={ODBC Driver 18 for SQL Server};'
