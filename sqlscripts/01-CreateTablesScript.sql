@@ -4,7 +4,7 @@ CREATE TABLE [dbo].[users] (
     [FirstName] VARCHAR (255) NOT NULL,
     [LastName]  VARCHAR (255) NOT NULL,
     [Email]     VARCHAR (255) NULL,
-    [Address]   VARCHAR (255) NULL,
+    [Password]  VARCHAR (255) NULL,
     [Contact]   VARCHAR (20)  NULL,
     PRIMARY KEY CLUSTERED ([UserID] ASC),    -- Primary Key on UserID
     UNIQUE NONCLUSTERED ([Email] ASC)        -- Unique constraint on Email
@@ -14,7 +14,7 @@ CREATE TABLE [dbo].[users] (
 CREATE TABLE [dbo].[items] (
     [ItemID]     INT             NOT NULL,
     [UserID]     INT             NOT NULL,
-    [Item_Name]   VARCHAR (255)   NOT NULL,
+    [ItemName]   VARCHAR (255)   NOT NULL,
     [Description] VARCHAR (255)   NULL,
     [Price]       DECIMAL (10, 2) NOT NULL,
     PRIMARY KEY CLUSTERED ([ItemID] ASC),
