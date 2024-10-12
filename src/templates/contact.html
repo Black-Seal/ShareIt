@@ -20,12 +20,10 @@
                     <li><a href="{{ url_for('listing') }}">Listings</a></li>
                     <li><a href="{{ url_for('about') }}">About</a></li>
                     <li><a href="{{ url_for('contact') }}">Contact</a></li>
-            
+
                     {% if session.get('user_id') %}
                     <!-- If the user is logged in, show the logout link -->
                     <li><a href="{{ url_for('profile') }}">Profile</a></li>
-                    <li><a href="{{ url_for('borrow_item') }}">Items Borrowed</a></li>
-                    <li><a href="{{ url_for('update_item') }}">Update Items</a></li>
                     <li><a href="{{ url_for('logout') }}">Logout</a></li>
                     {% else %}
                     <!-- If the user is not logged in, show the login and register links -->
@@ -40,8 +38,9 @@
     <section id="contact">
         <div class="container">
             <h2>Get in Touch</h2>
-            <p>We'd love to hear from you! Whether you have a question about how ShareIt works, suggestions for improvement, or just want to connect, feel free to reach out using the contact information below.</p>
-            
+            <p>We'd love to hear from you! Whether you have a question about how ShareIt works, suggestions for
+                improvement, or just want to connect, feel free to reach out using the contact information below.</p>
+
             <div class="contact-info">
                 <h3>Our Contact Information:</h3>
                 <p>Email: <a href="mailto:support@shareit.com">support@shareit.com</a></p>
@@ -53,13 +52,13 @@
             <form action="/send-message" method="POST">
                 <label for="name">Your Name:</label>
                 <input type="text" id="name" name="name" required>
-                
+
                 <label for="email">Your Email:</label>
                 <input type="email" id="email" name="email" required>
-                
+
                 <label for="message">Your Message:</label>
                 <textarea id="message" name="message" rows="6" required></textarea>
-                
+
                 <button type="submit">Send Message</button>
             </form>
         </div>
@@ -71,4 +70,5 @@
         </div>
     </footer>
 </body>
+
 </html>

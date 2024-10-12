@@ -21,12 +21,10 @@
                     <li><a href="{{ url_for('listing') }}">Listings</a></li>
                     <li><a href="{{ url_for('about') }}">About</a></li>
                     <li><a href="{{ url_for('contact') }}">Contact</a></li>
-            
+
                     {% if session.get('user_id') %}
                     <!-- If the user is logged in, show the logout link -->
                     <li><a href="{{ url_for('profile') }}">Profile</a></li>
-                    <li><a href="{{ url_for('borrow_item') }}">Items Borrowed</a></li>
-                    <li><a href="{{ url_for('update_item') }}">Update Items</a></li>
                     <li><a href="{{ url_for('logout') }}">Logout</a></li>
                     {% else %}
                     <!-- If the user is not logged in, show the login and register links -->
@@ -42,7 +40,10 @@
         <div class="container" align="center">
             <h2>About ShareIt</h2>
             <img src="{{ url_for('static', filename='images/ShareIt_Logo.jpg') }}" alt="ShareIt Logo">
-            <p>ShareIt is an innovative platform that helps community members share underutilized resources, allowing you to list and loan unused items. It’s like a digital library for tools, equipment, and household goods. By promoting sustainable resource sharing, we aim to reduce waste and the need for redundant purchases.</p>
+            <p>ShareIt is an innovative platform that helps community members share underutilized resources, allowing
+                you to list and loan unused items. It’s like a digital library for tools, equipment, and household
+                goods. By promoting sustainable resource sharing, we aim to reduce waste and the need for redundant
+                purchases.</p>
         </div>
     </section>
 
@@ -81,4 +82,5 @@
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>
+
 </html>

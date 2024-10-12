@@ -21,12 +21,10 @@
                     <li><a href="{{ url_for('listing') }}">Listings</a></li>
                     <li><a href="{{ url_for('about') }}">About</a></li>
                     <li><a href="{{ url_for('contact') }}">Contact</a></li>
-            
+
                     {% if session.get('user_id') %}
                     <!-- If the user is logged in, show the logout link -->
                     <li><a href="{{ url_for('profile') }}">Profile</a></li>
-                    <li><a href="{{ url_for('borrow_item') }}">Items Borrowed</a></li>
-                    <li><a href="{{ url_for('update_item') }}">Update Items</a></li>
                     <li><a href="{{ url_for('logout') }}">Logout</a></li>
                     {% else %}
                     <!-- If the user is not logged in, show the login and register links -->
@@ -50,21 +48,21 @@
 
     <!-- Section to view existing listings with scroll -->
     <section id="listings">
-        <div class="container", align="center">
+        <div class="container" , align="center">
             <h2>Available Items to Loan</h2>
-    
+
             {% if listings %}
-                <div class="listings-container">
-                    <!-- Loop through listings if available -->
-                    {% for item in listings %}
-                    <div class="listing-box">
-                        <h3>{{ item.name }}</h3>
-                        <p>{{ item.description }}</p>
-                    </div>
-                    {% endfor %}
+            <div class="listings-container">
+                <!-- Loop through listings if available -->
+                {% for item in listings %}
+                <div class="listing-box">
+                    <h3>{{ item.name }}</h3>
+                    <p>{{ item.description }}</p>
                 </div>
+                {% endfor %}
+            </div>
             {% else %}
-                <p>No items are currently available for loan. Be the first to add an item!</p>
+            <p>No items are currently available for loan. Be the first to add an item!</p>
             {% endif %}
         </div>
     </section>

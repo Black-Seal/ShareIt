@@ -21,12 +21,10 @@
                     <li><a href="{{ url_for('listing') }}">Listings</a></li>
                     <li><a href="{{ url_for('about') }}">About</a></li>
                     <li><a href="{{ url_for('contact') }}">Contact</a></li>
-            
+
                     {% if session.get('user_id') %}
                     <!-- If the user is logged in, show the logout link -->
                     <li><a href="{{ url_for('profile') }}">Profile</a></li>
-                    <li><a href="{{ url_for('borrow_item') }}">Items Borrowed</a></li>
-                    <li><a href="{{ url_for('update_item') }}">Update Items</a></li>
                     <li><a href="{{ url_for('logout') }}">Logout</a></li>
                     {% else %}
                     <!-- If the user is not logged in, show the login and register links -->

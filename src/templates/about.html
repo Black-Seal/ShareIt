@@ -20,12 +20,10 @@
                     <li><a href="{{ url_for('listing') }}">Listings</a></li>
                     <li><a href="{{ url_for('about') }}">About</a></li>
                     <li><a href="{{ url_for('contact') }}">Contact</a></li>
-            
+
                     {% if session.get('user_id') %}
                     <!-- If the user is logged in, show the logout link -->
                     <li><a href="{{ url_for('profile') }}">Profile</a></li>
-                    <li><a href="{{ url_for('borrow_item') }}">Items Borrowed</a></li>
-                    <li><a href="{{ url_for('update_item') }}">Update Items</a></li>
                     <li><a href="{{ url_for('logout') }}">Logout</a></li>
                     {% else %}
                     <!-- If the user is not logged in, show the login and register links -->
@@ -43,8 +41,10 @@
             <img src="{{ url_for('static', filename='images/portrait.jpg') }}" alt="Team Picture">
             <p>
                 ShareIt is an innovative platform developed by a group of budding entrepreneurs from SIT.
-                The platform empowers individuals to list underutilized items such as tools, equipment, and household goods for rent, making them available to others in the community.
-                By promoting a culture of sharing and sustainability, ShareIt helps reduce waste, minimize unnecessary purchases, and foster stronger connections among community members.
+                The platform empowers individuals to list underutilized items such as tools, equipment, and household
+                goods for rent, making them available to others in the community.
+                By promoting a culture of sharing and sustainability, ShareIt helps reduce waste, minimize unnecessary
+                purchases, and foster stronger connections among community members.
                 Join us in creating a more resource-efficient and eco-friendly future!
             </p>
         </div>
@@ -56,4 +56,5 @@
         </div>
     </footer>
 </body>
+
 </html>
