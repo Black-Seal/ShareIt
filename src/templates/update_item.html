@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Update Item">
+    <title>Update Item</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <h1>Update Item</h1>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li><a href="{{ url_for('listing') }}">Listings</a></li>
+            <li><a href="{{ url_for('about') }}">About</a></li>
+            <li><a href="{{ url_for('contact') }}">Contact</a></li>
+    
+            {% if session.get('user_id') %}
+            <!-- If the user is logged in, show the logout link -->
+            <li><a href="{{ url_for('profile') }}">Profile</a></li>
+            <li><a href="{{ url_for('borrow_item') }}">Items Borrowed</a></li>
+            <li><a href="{{ url_for('update_item') }}">Update Items</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            {% else %}
+            <!-- If the user is not logged in, show the login and register links -->
+            <li><a href="{{ url_for('login') }}">Login</a></li>
+            <li><a href="{{ url_for('register') }}">Register here!</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    <form action="{{ url_for('update_item', item_id=item.ItemID) }}" method="POST">
+        <div>
+            <label for="item_name">Item Name:</label>
+            <input type="text" name="item_name" value="{{ item.ItemName }}" required>
+        </div>
+        <div>
+            <label for="description">Description:</label>
+            <textarea name="description" required>{{ item.Description }}</textarea>
+        </div>
+        <button type="submit">Update</button>
+    </form>
+</body>
+
+</html>

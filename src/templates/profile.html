@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Profile Page">
+    <title>Profile - ShareIt</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <header>
+        <h1>{{ user[0] }} {{ user[1] }}'s Profile</h1>
+        <p>Here are your listings and borrowed items.</p>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('listing') }}">Listings</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li><a href="{{ url_for('contact') }}">Contact</a></li>
+        
+                {% if session.get('user_id') %}
+                <!-- If the user is logged in, show the logout link -->
+                <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                <li><a href="{{ url_for('borrow_item') }}">Items Borrowed</a></li>
+                <li><a href="{{ url_for('update_item') }}">Update Items</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                {% else %}
+                <!-- If the user is not logged in, show the login and register links -->
+                <li><a href="{{ url_for('login') }}">Login</a></li>
+                <li><a href="{{ url_for('register') }}">Register here!</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <section>
+        <h2>Your Listings</h2>
+        {% if user_listings %}
+        <ul>
+            {% for listing in user_listings %}
+            <li>
+                <h3>{{ listing.ItemName }}</h3>
+                <p>{{ listing.Description }}</p>
+                {% if not listing.BorrowerID %}
+                    <a href="{{ url_for('update_item', item_id=listing.ItemID) }}">Update</a>
+                    <a href="{{ url_for('delete_item', item_id=listing.ItemID) }}">Delete</a>
+                {% else %}
+                    <p>This item is currently being borrowed.</p>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>You haven't listed any items yet.</p>
+        {% endif %}
+    </section>
+
+    <section>
+        <h2>Items You Borrowed</h2>
+        {% if borrowed_items %}
+        <ul>
+            {% for item in borrowed_items %}
+            <li>
+                <h3>{{ item.ItemName }}</h3>
+                <p>{{ item.Description }}</p>
+                <p>Borrowed from: {{ item.StartDate }} to {{ item.EndDate }}</p>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>You haven't borrowed any items yet.</p>
+        {% endif %}
+    </section>
+
+    <footer>
+        <p>&copy; 2024 ShareIt. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>
