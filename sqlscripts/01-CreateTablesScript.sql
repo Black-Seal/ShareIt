@@ -12,7 +12,7 @@ CREATE TABLE [dbo].[users] (
 
 -- Items table
 CREATE TABLE [dbo].[items] (
-    [ItemID]     INT             NOT NULL,
+    [ItemID]     INT IDENTITY(1,1) NOT NULL,  -- Auto-incrementing ItemID
     [UserID]     INT             NOT NULL,
     [ItemName]   VARCHAR (255)   NOT NULL,
     [Description] VARCHAR (255)   NULL,
@@ -23,7 +23,7 @@ CREATE TABLE [dbo].[items] (
 
 -- Listings table
 CREATE TABLE [dbo].[listings] (
-    [ListingID]  INT  NOT NULL,
+    [ListingID]  INT IDENTITY(1,1) NOT NULL,  -- Auto-incrementing ListingID
     [BorrowerID] INT  NOT NULL,
     [LenderID]   INT  NOT NULL,
     [ItemID]     INT  NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE [dbo].[listings] (
 
 -- Fines table
 CREATE TABLE [dbo].[fines] (
-    [FineID]     INT             NOT NULL,
+    [FineID]     INT IDENTITY(1,1) NOT NULL,  -- Auto-incrementing FineID
     [ListingID]  INT             NOT NULL,
     [BorrowerID] INT             NOT NULL,
     [FineAmount] DECIMAL (10, 2) NOT NULL,
