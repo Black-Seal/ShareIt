@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from werkzeug.security import generate_password_hash, check_password_hash
 import pyodbc
-from werkzeug.security import generate_password_hash
 import re
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -181,6 +182,47 @@ def borrow_item(item_id):
 
     conn.close()
     return render_template("borrow_item.html", item=item)
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        # Sanitize email input
+        email = re.sub(r'[^\w\.\@]', '', email)
+
+        # Connect to the database
+        conn = get_db_connection()
+        if conn:
+            try:
+                cursor = conn.cursor()
+                query = "SELECT * FROM dbo.users WHERE Email = ?"
+                cursor.execute(query, (email,))
+                user = cursor.fetchone()
+                
+                if user and check_password_hash(user.Password, password):
+                    # Login successful
+                    session["user_id"] = user.UserID  # Store user ID in session
+                    session["user_email"] = user.Email
+                    return redirect(url_for("listing"))
+                else:
+                    flash("Invalid email or password. Please try again.", "error")
+            except Exception as e:
+                print("Error during login:", e)
+            finally:
+                conn.close()
+
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    session.pop("user_id", None)
+    session.pop("user_email", None)
+    flash("You have been logged out.", "info")
+    return redirect(url_for("home"))
 
 
 if __name__ == "__main__":
