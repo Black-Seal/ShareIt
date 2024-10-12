@@ -266,5 +266,92 @@ def logout():
     return redirect(url_for("home"))
 
 
+@app.route("/profile")
+def profile():
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(url_for("login"))  # Redirect to login if the user is not logged in
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Fetch user details
+    cursor.execute("SELECT FirstName, LastName FROM dbo.users WHERE UserID = ?", (user_id,))
+    user = cursor.fetchone()
+
+    # Fetch the listings created by the user
+    cursor.execute("""
+        SELECT ItemID, ItemName, Description, BorrowerID 
+        FROM dbo.items 
+        WHERE LenderID = ?
+    """, (user_id,))
+    user_listings = cursor.fetchall()
+
+    # Fetch the items borrowed by the user
+    cursor.execute("""
+        SELECT i.ItemName, i.Description, l.StartDate, l.EndDate 
+        FROM dbo.listings l
+        JOIN dbo.items i ON l.ItemID = i.ItemID
+        WHERE l.BorrowerID = ?
+    """, (user_id,))
+    borrowed_items = cursor.fetchall()
+
+    conn.close()
+
+    return render_template("profile.html", user=user, user_listings=user_listings, borrowed_items=borrowed_items)
+
+@app.route("/update_item/<int:item_id>", methods=["GET", "POST"])
+def update_item(item_id):
+    user_id = session.get("user_id")
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Fetch the item to check if it belongs to the user and is not being borrowed
+    cursor.execute("SELECT LenderID, BorrowerID FROM dbo.items WHERE ItemID = ?", (item_id,))
+    item = cursor.fetchone()
+
+    if not item or item.LenderID != user_id:
+        return "Unauthorized", 403
+
+    if item.BorrowerID:
+        flash("You cannot update this item while it is being borrowed.", "error")
+        return redirect(url_for("profile"))
+
+    if request.method == "POST":
+        item_name = request.form.get("item_name")
+        description = request.form.get("description")
+        cursor.execute("UPDATE dbo.items SET ItemName = ?, Description = ? WHERE ItemID = ?", (item_name, description, item_id))
+        conn.commit()
+        return redirect(url_for("profile"))
+
+    conn.close()
+    return render_template("update_item.html", item=item)
+
+
+@app.route("/delete_item/<int:item_id>", methods=["POST"])
+def delete_item(item_id):
+    user_id = session.get("user_id")
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Fetch the item to check if it belongs to the user and is not being borrowed
+    cursor.execute("SELECT LenderID, BorrowerID FROM dbo.items WHERE ItemID = ?", (item_id,))
+    item = cursor.fetchone()
+
+    if not item or item.LenderID != user_id:
+        return "Unauthorized", 403
+
+    if item.BorrowerID:
+        flash("You cannot delete this item while it is being borrowed.", "error")
+        return redirect(url_for("profile"))
+
+    cursor.execute("DELETE FROM dbo.items WHERE ItemID = ?", (item_id,))
+    conn.commit()
+    conn.close()
+    flash("Item deleted successfully.", "info")
+    return redirect(url_for("profile"))
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)    # Enable debug first so can track errors
