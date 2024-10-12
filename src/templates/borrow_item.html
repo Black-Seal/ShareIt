@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Borrow Item - ShareIt">
+    <title>Borrow Item - ShareIt</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <h1>Borrow {{ item[0] }}</h1> <!-- Item name -->
+            <p>{{ item[1] }}</p> <!-- Item description -->
+            <p>Price per day: ${{ item[2] }}</p> <!-- Item price -->
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <form action="{{ url_for('borrow_item', item_id=item_id) }}" method="POST">
+                <div class="form-group">
+                    <label for="start_date">Start Date:</label>
+                    <input type="date" id="start_date" name="start_date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="end_date">End Date:</label>
+                    <input type="date" id="end_date" name="end_date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="total_price">Total Price:</label>
+                    <input type="text" id="total_price" readonly> <!-- This will be calculated dynamically with JS -->
+                </div>
+
+                <input type="hidden" name="borrower_id" value="{{ borrower_id }}"> <!-- Fetch logged-in user's ID -->
+                <input type="hidden" name="lender_id" value="{{ lender_id }}"> <!-- Fetch lender ID -->
+
+                <button type="submit">Borrow Item</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 ShareIt. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+
+</html>

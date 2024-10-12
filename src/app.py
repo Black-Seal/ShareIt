@@ -143,6 +143,45 @@ def listitem():
     # Logic to render the page where users can add a new listing
     return render_template('listitem.html')  # Assuming this is the page for adding a new listing
 
+@app.route("/borrow_item/<int:item_id>", methods=["GET", "POST"])
+def borrow_item(item_id):
+    # Connect to the database
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Fetch the item details
+    cursor.execute("SELECT Item_Name, Description, Price FROM dbo.Items WHERE ItemID = ?", (item_id,))
+    item = cursor.fetchone()
+    if not item:
+        return "Item not found", 404
+
+    # If form is submitted, process the borrowing
+    if request.method == "POST":
+        borrower_id = request.form.get("borrower_id")  # Fetch the borrower (logged-in user ID)
+        lender_id = request.form.get("lender_id")      # Assuming you already know the lender ID from your logic
+        start_date = request.form.get("start_date")
+        end_date = request.form.get("end_date")
+
+        # Convert to date format and calculate the number of days
+        start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")
+        end_date_obj = datetime.strptime(end_date, "%Y-%m-%d")
+        num_days = (end_date_obj - start_date_obj).days
+        total_price = num_days * item[2]  # item[2] is the price from the fetched item
+
+        # Insert into the Listings table
+        query = """
+        INSERT INTO dbo.listings (BorrowerID, LenderID, ItemID, StartDate, EndDate, ReturnFlag)
+        VALUES (?, ?, ?, ?, ?, 0)
+        """
+        cursor.execute(query, (borrower_id, lender_id, item_id, start_date, end_date))
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for("success_page"))  # Redirect to success or listing page after transaction
+
+    conn.close()
+    return render_template("borrow_item.html", item=item)
+
 
 if __name__ == "__main__":
     app.run(debug=True)    # Enable debug first so can track errors
