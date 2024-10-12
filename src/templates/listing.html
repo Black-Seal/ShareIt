@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Listings for ShareIt - A platform for sharing underutilized resources.">
+    <title>Listing - ShareIt</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <h1>Listings for ShareIt</h1>
+            <p>View and Add items</p>
+        </div>
+    </header>
+
+    <!-- Section to view existing listings -->
+    <section id="listings">
+        <div class="container">
+            <h2>Available Items</h2>
+            <!-- You can loop over listings in Flask and display items here -->
+            <!-- Example: {% for item in listings %} -->
+            <!-- <div>{{ item.name }}</div> -->
+            <!-- {% endfor %} -->
+        </div>
+    </section>
+
+    <!-- Button to add a new item -->
+    <section id="add-item">
+        <div class="container" align="center">
+            <h2>Want to Add an Item?</h2>
+            <a href="{{ url_for('register') }}">
+                <button class="btn">Add New Item</button>
+            </a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 ShareIt. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

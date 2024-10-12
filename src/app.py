@@ -64,5 +64,9 @@ def register():
         return redirect(url_for("home"))
     return render_template("register.html")
 
+@app.route("/listing")
+def listing():
+    return render_template("listing.html")
+
 if __name__ == "__main__":
     app.run(debug=True)    # Enable debug first so can track errors
