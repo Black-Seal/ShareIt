@@ -31,34 +31,42 @@
 - **Database**: Azure SQL Database (PaaS)
 - **Cloud**: Microsoft Azure for SQL Database services
 
-## Installation
-
-1. Clone the repository:
-```ssh
-git clone git@github.com:Black-Seal/ShareIt.git
+We'll be using venv as our virtual environment
+```
+pip install virtualenv
 ```
 
-2. Create a virtual environment:
-```ssh
-python3 -m venv .venv
+1. **Create virtual environment**
+
+Mac
+```
+python3 -m venv myenv
 ```
 
-3. Activate the virtual environment:
-- **macOS**
-```ssh
-source .venv/bin/activate
+Windows
 ```
-- **Windows**
-```ssh
-.\.venv\Scripts\Activate.ps1
+python -m venv myenv
 ```
 
-4. Install the required dependencies:
-```ssh
+2. Activate virtual environment
+
+Mac
+```
+source myenv/bin/activate
+```
+
+Windows
+```
+source myenv/Scripts/activate
+```
+
+
+3. Install required libraries & dependancies 
+```
 pip install -r requirements.txt
 ```
 
-5. Set up the Flask environment:
+4. Set up the Flask environment:
 ```ssh
 export FLASK_APP=app.py        # For macOS/Linux
 set FLASK_APP=app.py           # For Windows
@@ -66,7 +74,7 @@ export FLASK_ENV=development   # Enables debug mode (macOS/Linux)
 set FLASK_ENV=development      # (Windows)
 ```
 
-6. Run the Flask app
+5. Run the Flask app
 ```ssh
 flask run
 ```
@@ -82,20 +90,27 @@ Once the app is running, users can:
 
 # Folder Structure
 ```
-project/
+SHAREIT/                
 │
-├── static/                     # Static files (CSS, images)
-│   ├── images/                 # Logo and other images
-│   └── styles.css              # Custom styles for the app
+├── data/                <------- Directory for datasets or input data files
+│   ├── clean/           <------- Processed or cleaned data files
+│   └── raw/             <------- Raw, unprocessed data files
 │
-├── templates/                  # HTML templates for rendering web pages
-│   └── base.html
-│   └── home.html
-│   └── about.html
+├── notebooks/           <------- Jupyter notebooks 
 │
-├── app.py                      # Main Flask app
-├── requirements.txt            # Python dependencies
-└── README.md                   # Project documentation
+├── sqlscripts/          <------- SQL scripts for database setup or queries
+│
+├── src/                 <------- Source code for the main application
+│   ├── static/          <------- Static files (CSS, JavaScript, images, etc.)
+│   ├── templates/       <------- HTML templates for rendering web pages
+│   └── app.py           <------- Execution point
+│
+├── .gitignore           
+│
+├── README.md           
+│
+└── requirements.txt     
+
 ```
 
 # Contributing
