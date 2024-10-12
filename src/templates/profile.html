@@ -21,11 +21,9 @@
                 <li><a href="{{ url_for('contact') }}">Contact</a></li>
 
                 {% if session.get('user_id') %}
-                <!-- If the user is logged in, show the logout link -->
                 <li><a href="{{ url_for('profile') }}">Profile</a></li>
                 <li><a href="{{ url_for('logout') }}">Logout</a></li>
                 {% else %}
-                <!-- If the user is not logged in, show the login and register links -->
                 <li><a href="{{ url_for('login') }}">Login</a></li>
                 <li><a href="{{ url_for('register') }}">Register here!</a></li>
                 {% endif %}
@@ -42,7 +40,11 @@
                 <h3>{{ listing.ItemName }}</h3>
                 <p>{{ listing.Description }}</p>
                 <a href="{{ url_for('update_item', item_id=listing.ItemID) }}">Update</a>
-                <a href="{{ url_for('delete_item', item_id=listing.ItemID) }}">Delete</a>
+
+                <!-- Form for Deleting an Item -->
+                <form action="{{ url_for('delete_item', item_id=listing.ItemID) }}" method="POST" style="display:inline;">
+                    <button type="submit">Delete</button>
+                </form>
             </li>
             {% endfor %}
         </ul>

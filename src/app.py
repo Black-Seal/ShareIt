@@ -332,21 +332,26 @@ def update_item(item_id):
 
 @app.route("/delete_item/<int:item_id>", methods=["POST"])
 def delete_item(item_id):
-    user_id = session.get("user_id")
+    user_id = session.get("user_id")  # The currently logged-in user
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Fetch the item to check if it belongs to the user and is not being borrowed
-    cursor.execute("SELECT LenderID, BorrowerID FROM dbo.items WHERE ItemID = ?", (item_id,))
+    # Fetch the item to check if it belongs to the user (Lender)
+    cursor.execute("SELECT UserID FROM dbo.items WHERE ItemID = ?", (item_id,))
     item = cursor.fetchone()
 
-    if not item or item.LenderID != user_id:
+    if not item or item[0] != user_id:  # item[0] is UserID (the lender)
         return "Unauthorized", 403
 
-    if item.BorrowerID:
+    # Check if the item is currently being borrowed in the listings table
+    cursor.execute("SELECT BorrowerID FROM dbo.listings WHERE ItemID = ? AND ReturnFlag = 0", (item_id,))
+    borrowing = cursor.fetchone()
+
+    if borrowing:
         flash("You cannot delete this item while it is being borrowed.", "error")
         return redirect(url_for("profile"))
 
+    # Proceed to delete the item if it's not being borrowed
     cursor.execute("DELETE FROM dbo.items WHERE ItemID = ?", (item_id,))
     conn.commit()
     conn.close()
