@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 import pyodbc
+from werkzeug.security import generate_password_hash
+import re
 
 app = Flask(__name__)
 
@@ -41,8 +43,16 @@ def register():
         firstname = request.form.get("firstname")
         lastname = request.form.get("lastname")
         email = request.form.get("email")
-        address = request.form.get("address")
+        password = request.form.get("password")
         contactnumber = request.form.get("contactnumber")
+
+        # Sanitizing inputs (you can add more rules based on your specific needs)
+        email = re.sub(r'[^\w\.\@]', '', email)  # Remove unwanted characters from email
+        contactnumber = re.sub(r'\D', '', contactnumber)  # Keep only numbers for contact number
+        password = password.strip()  # Strip whitespace from password
+
+        # Hash the password securely using Werkzeug
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256', salt_length=16)
 
         # Connect to the database
         conn = get_db_connection()
@@ -50,18 +60,20 @@ def register():
             try:
                 cursor = conn.cursor()
                 # SQL script to insert user data into the 'users' table
-                # UserID is PK so excluded here
+                # We assume there's a 'Password' column in the 'users' table
                 query = """
-                INSERT INTO dbo.users (FirstName, LastName, Email, Address, Contact)
+                INSERT INTO dbo.users (FirstName, LastName, Email, Password, Contact)
                 VALUES (?, ?, ?, ?, ?)
                 """
-                cursor.execute(query, (firstname, lastname, email, address, contactnumber))
+                cursor.execute(query, (firstname, lastname, email, hashed_password, contactnumber))
                 conn.commit()
             except Exception as e:
                 print("Error inserting data:", e)
             finally:
                 conn.close()
+
         return redirect(url_for("home"))
+    
     return render_template("register.html")
 
 @app.route("/listing")
