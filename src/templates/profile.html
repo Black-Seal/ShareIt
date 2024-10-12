@@ -34,20 +34,30 @@
     <section>
         <h2>Your Listings</h2>
         {% if user_listings %}
-        <ul>
-            {% for listing in user_listings %}
-            <li>
-                <h3>{{ listing.ItemName }}</h3>
-                <p>{{ listing.Description }}</p>
-                <a href="{{ url_for('update_item', item_id=listing.ItemID) }}">Update</a>
-
-                <!-- Form for Deleting an Item -->
-                <form action="{{ url_for('delete_item', item_id=listing.ItemID) }}" method="POST" style="display:inline;">
-                    <button type="submit">Delete</button>
-                </form>
-            </li>
-            {% endfor %}
-        </ul>
+        <table>
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for listing in user_listings %}
+                <tr>
+                    <td>{{ listing.ItemName }}</td>
+                    <td>{{ listing.Description }}</td>
+                    <td>
+                        <a href="{{ url_for('update_item', item_id=listing.ItemID) }}" class="btn">Update</a>
+                        <form action="{{ url_for('delete_item', item_id=listing.ItemID) }}" method="POST"
+                            style="display:inline;">
+                            <button type="submit" class="btn delete">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
         {% else %}
         <p>You haven't listed any items yet.</p>
         {% endif %}
@@ -56,15 +66,24 @@
     <section>
         <h2>Items You Borrowed</h2>
         {% if borrowed_items %}
-        <ul>
-            {% for item in borrowed_items %}
-            <li>
-                <h3>{{ item.ItemName }}</h3>
-                <p>{{ item.Description }}</p>
-                <p>Borrowed from: {{ item.StartDate }} to {{ item.EndDate }}</p>
-            </li>
-            {% endfor %}
-        </ul>
+        <table>
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Description</th>
+                    <th>Borrowing Period</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in borrowed_items %}
+                <tr>
+                    <td>{{ item.ItemName }}</td>
+                    <td>{{ item.Description }}</td>
+                    <td>From: {{ item.StartDate }} to {{ item.EndDate }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
         {% else %}
         <p>You haven't borrowed any items yet.</p>
         {% endif %}

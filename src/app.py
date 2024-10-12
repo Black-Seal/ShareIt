@@ -86,9 +86,9 @@ def listing():
     if conn:
         try:
             cursor = conn.cursor()
-            # Updated SQL query to fetch Price as well
+            # Fetch ItemID, ItemName, Description, and Price
             query = """
-            SELECT TOP 20 ItemName, Description, Price FROM dbo.items
+            SELECT TOP 20 ItemID, ItemName, Description, Price FROM dbo.items
             """
             cursor.execute(query)
             listings = cursor.fetchall()  # Fetch the first set of listings
@@ -99,7 +99,7 @@ def listing():
             conn.close()
     else:
         listings = []
-    
+
     # Render the listings in the template
     return render_template("listing.html", listings=listings)
 
@@ -193,13 +193,13 @@ def borrow_item(ItemID):
     cursor = conn.cursor()
 
     # Fetch the item details including the LenderID
-    cursor.execute("SELECT ItemName, Description, Price, UserID FROM dbo.Items WHERE ItemID = ?", (ItemID,))
+    cursor.execute("SELECT ItemName, Description, Price, UserID FROM dbo.items WHERE ItemID = ?", (ItemID,))
     item = cursor.fetchone()
     if not item:
         return "Item not found", 404
 
-    # Item details
-    item_name, item_description, item_price, lender_id = item  # lender_id is the UserID of the owner of the item
+    # Assign variables for template
+    item_name, item_description, item_price, lender_id = item
 
     if request.method == "POST":
         start_date = request.form.get("StartDate")
@@ -224,8 +224,13 @@ def borrow_item(ItemID):
         return redirect(url_for("listing"))
 
     conn.close()
-    return render_template("borrow_item.html", item=item, LenderID=lender_id, item_id=ItemID)
-
+    # Render the template with the fetched item details
+    return render_template("borrow_item.html", 
+                           item_name=item_name, 
+                           item_description=item_description, 
+                           item_price=item_price, 
+                           LenderID=lender_id, 
+                           item_id=ItemID)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():

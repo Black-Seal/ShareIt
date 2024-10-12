@@ -33,28 +33,32 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // For borrowing items (borrow_item.html functionality)
-    let startDateInput = document.getElementById("start_date");
-    let endDateInput = document.getElementById("end_date");
-    let totalPriceInput = document.getElementById("total_price");
+    document.addEventListener("DOMContentLoaded", function () {
+        let startDateInput = document.getElementById("StartDate");
+        let endDateInput = document.getElementById("EndDate");
+        let totalPriceInput = document.getElementById("total_price");
 
-    if (startDateInput && endDateInput && totalPriceInput) {
-        let pricePerDay = parseFloat(document.getElementById('price_per_day').textContent);  // Assuming price is rendered as text in HTML
+        if (startDateInput && endDateInput && totalPriceInput) {
+            // Fetch the price per day from the page
+            let pricePerDay = parseFloat(document.getElementById('price_per_day').textContent);
 
-        function calculateTotalPrice() {
-            const startDate = new Date(startDateInput.value);
-            const endDate = new Date(endDateInput.value);
+            function calculateTotalPrice() {
+                const startDate = new Date(startDateInput.value);
+                const endDate = new Date(endDateInput.value);
 
-            if (startDate && endDate && startDate < endDate) {
-                const timeDifference = endDate.getTime() - startDate.getTime();
-                const numDays = timeDifference / (1000 * 3600 * 24);  // Convert milliseconds to days
-                const totalPrice = numDays * pricePerDay;
-                totalPriceInput.value = totalPrice.toFixed(2);  // Set the total price in the input field
+                if (startDate && endDate && startDate <= endDate) {
+                    const timeDifference = endDate.getTime() - startDate.getTime();
+                    const numDays = Math.ceil(timeDifference / (1000 * 3600 * 24)); // Convert ms to days
+                    const totalPrice = numDays * pricePerDay;
+                    totalPriceInput.value = totalPrice.toFixed(2);  // Update the total price in the input
+                } else {
+                    totalPriceInput.value = ""; // Clear the field if the dates are invalid
+                }
             }
-        }
 
-        // Attach event listeners to start and end date inputs for dynamic price calculation
-        startDateInput.addEventListener("change", calculateTotalPrice);
-        endDateInput.addEventListener("change", calculateTotalPrice);
-    }
+            // Attach event listeners to start and end date inputs
+            startDateInput.addEventListener("change", calculateTotalPrice);
+            endDateInput.addEventListener("change", calculateTotalPrice);
+        }
+    });
 });

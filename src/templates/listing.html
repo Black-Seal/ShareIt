@@ -55,9 +55,10 @@
                 <!-- Loop through listings if available -->
                 {% for item in listings %}
                 <div class="listing-box">
-                    <h3>{{ item[0] }}</h3> <!-- ItemName -->
-                    <p>{{ item[1] }}</p> <!-- Description -->
-                    <p>Price: ${{ item[2] }}</p> <!-- Price -->
+                    <!-- Make the ItemName clickable, and dynamically pass the ItemID in the URL -->
+                    <h3><a href="{{ url_for('borrow_item', ItemID=item[0]) }}">{{ item[1] }}</a></h3> <!-- ItemName -->
+                    <p>{{ item[2] }}</p> <!-- Description -->
+                    <p>Price: ${{ item[3] }}</p> <!-- Price -->
                 </div>
                 {% endfor %}
             </div>
@@ -66,8 +67,6 @@
             {% endif %}
         </div>
     </section>
-
-
 
     <footer>
         <div class="container">
