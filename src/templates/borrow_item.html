@@ -38,7 +38,7 @@
             <p>{{ item_description }}</p> <!-- Item description -->
             <p>Price per day: $<span id="price_per_day">{{ item_price }}</span></p> <!-- Item price -->
 
-            <form action="{{ url_for('borrow_item', ItemID=item_id) }}" method="POST">
+            <form action="{{ url_for('borrow_item', item_id=item_id) }}" method="POST">
                 <div class="form-group">
                     <label for="StartDate">Start Date:</label>
                     <input type="date" id="StartDate" name="StartDate" required>

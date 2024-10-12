@@ -7,18 +7,21 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-app.secret_key = os.getenv('SECRET_KEY', 'fallback-secret-key')  # 'fallback-secret-key' is used if env variable is not set
+app.secret_key = os.getenv(
+    "SECRET_KEY", "fallback-secret-key"
+)  # 'fallback-secret-key' is used if env variable is not set
 
 DATABASE_CONNECTION_STRING = (
-    'Driver={ODBC Driver 18 for SQL Server};'
-    'Server=tcp:sit-dev-shareit.database.windows.net,1433;'
-    'Database=dev-shareit;'
-    'Uid=jjask-admin;'
-    'Pwd={5h:oF9I!2dfH7hB};'    # SENSITIVE
-    'Encrypt=yes;'
-    'TrustServerCertificate=no;'
-    'Connection Timeout=30;'
+    "Driver={ODBC Driver 18 for SQL Server};"
+    "Server=tcp:sit-dev-shareit.database.windows.net,1433;"
+    "Database=dev-shareit;"
+    "Uid=jjask-admin;"
+    "Pwd={5h:oF9I!2dfH7hB};"  # SENSITIVE
+    "Encrypt=yes;"
+    "TrustServerCertificate=no;"
+    "Connection Timeout=30;"
 )
+
 
 def get_db_connection():
     try:
@@ -28,17 +31,21 @@ def get_db_connection():
         print("Error connecting to database:", e)
         return None
 
+
 @app.route("/")
 def home():
     return render_template("index.html")
+
 
 @app.route("/about")
 def about():
     return render_template("about.html")
 
+
 @app.route("/contact")
 def contact():
     return render_template("contact.html")
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -51,12 +58,16 @@ def register():
         contactnumber = request.form.get("contactnumber")
 
         # Sanitizing inputs (you can add more rules based on your specific needs)
-        email = re.sub(r'[^\w\.\@]', '', email)  # Remove unwanted characters from email
-        contactnumber = re.sub(r'\D', '', contactnumber)  # Keep only numbers for contact number
+        email = re.sub(r"[^\w\.\@]", "", email)  # Remove unwanted characters from email
+        contactnumber = re.sub(
+            r"\D", "", contactnumber
+        )  # Keep only numbers for contact number
         password = password.strip()  # Strip whitespace from password
 
         # Hash the password securely using Werkzeug
-        hashed_password = generate_password_hash(password, method='pbkdf2:sha256', salt_length=16)
+        hashed_password = generate_password_hash(
+            password, method="pbkdf2:sha256", salt_length=16
+        )
 
         # Connect to the database
         conn = get_db_connection()
@@ -69,7 +80,9 @@ def register():
                 INSERT INTO dbo.users (FirstName, LastName, Email, Password, Contact)
                 VALUES (?, ?, ?, ?, ?)
                 """
-                cursor.execute(query, (firstname, lastname, email, hashed_password, contactnumber))
+                cursor.execute(
+                    query, (firstname, lastname, email, hashed_password, contactnumber)
+                )
                 conn.commit()
             except Exception as e:
                 print("Error inserting data:", e)
@@ -77,8 +90,9 @@ def register():
                 conn.close()
 
         return redirect(url_for("home"))
-    
+
     return render_template("register.html")
+
 
 @app.route("/listing")
 def listing():
@@ -86,7 +100,7 @@ def listing():
     if conn:
         try:
             cursor = conn.cursor()
-            # Fetch ItemID, ItemName, Description, and Price
+            # Updated SQL query to fetch Price as well
             query = """
             SELECT TOP 20 ItemID, ItemName, Description, Price FROM dbo.items
             """
@@ -103,12 +117,13 @@ def listing():
     # Render the listings in the template
     return render_template("listing.html", listings=listings)
 
+
 @app.route("/load-more-listings")
 def load_more_listings():
-    page = request.args.get('page', 1, type=int)
+    page = request.args.get("page", 1, type=int)
     per_page = 10
     offset = (page - 1) * per_page
-    
+
     conn = get_db_connection()
     if conn:
         try:
@@ -125,10 +140,11 @@ def load_more_listings():
             # Convert the results to a JSON serializable format
             listings_data = [
                 {
-                    'name': listing.ItemName,
-                    'price': listing.Price
+                    "name": listing.ItemName,
+                    "price": listing.Price,
                     # Add other necessary fields here
-                } for listing in listings
+                }
+                for listing in listings
             ]
         except Exception as e:
             print("Error fetching more listings:", e)
@@ -137,21 +153,24 @@ def load_more_listings():
             conn.close()
     else:
         listings_data = []
-    
-    return {'listings': listings_data}
 
-@app.route('/listitem', methods=['GET', 'POST'])
+    return {"listings": listings_data}
+
+
+@app.route("/listitem", methods=["GET", "POST"])
 def listitem():
-    if request.method == 'POST':
+    if request.method == "POST":
         # Check if user is logged in
-        user_id = session.get('user_id')
+        user_id = session.get("user_id")
         if not user_id:
-            return redirect(url_for('login'))  # Redirect to login if user is not logged in
+            return redirect(
+                url_for("login")
+            )  # Redirect to login if user is not logged in
 
         # Retrieve form data
-        item_name = request.form.get('ItemName')
-        item_description = request.form.get('Description')
-        item_price = request.form.get('Price')
+        item_name = request.form.get("ItemName")
+        item_description = request.form.get("Description")
+        item_price = request.form.get("Price")
 
         # Validate that the data is present and correct
         if not item_name or not item_description or not item_price:
@@ -167,39 +186,52 @@ def listitem():
                 INSERT INTO dbo.items (ItemName, Description, Price, UserID)
                 VALUES (?, ?, ?, ?)
                 """
-                cursor.execute(query, (item_name, item_description, item_price, user_id))
+                cursor.execute(
+                    query, (item_name, item_description, item_price, user_id)
+                )
                 conn.commit()
             except Exception as e:
                 print("Error inserting listing:", e)
-                return "Failed to add listing", 500  # Error message for DB insertion issues
+                return (
+                    "Failed to add listing",
+                    500,
+                )  # Error message for DB insertion issues
             finally:
                 conn.close()
 
-            return redirect(url_for('listing'))  # Redirect to the listing page after successful addition
+            return redirect(
+                url_for("listing")
+            )  # Redirect to the listing page after successful addition
 
     # Render the listing form for GET requests
-    return render_template('listitem.html')
+    return render_template("listitem.html")
 
-@app.route("/borrow_item/<int:ItemID>", methods=["GET", "POST"])
-def borrow_item(ItemID):
+
+@app.route("/borrow_item/<int:item_id>", methods=["GET", "POST"])
+def borrow_item(item_id):
     # Check if the user is logged in
-    borrower_id = session.get('user_id')
+    borrower_id = session.get("user_id")
     if not borrower_id:
         flash("You must be logged in to borrow an item", "error")
-        return redirect(url_for('login'))
+        return redirect(url_for("login"))
 
     # Connect to the database
     conn = get_db_connection()
     cursor = conn.cursor()
 
     # Fetch the item details including the LenderID
-    cursor.execute("SELECT ItemName, Description, Price, UserID FROM dbo.items WHERE ItemID = ?", (ItemID,))
+    cursor.execute(
+        "SELECT ItemName, Description, Price, UserID FROM dbo.Items WHERE ItemID = ?",
+        (item_id,),
+    )
     item = cursor.fetchone()
     if not item:
         return "Item not found", 404
 
-    # Assign variables for template
-    item_name, item_description, item_price, lender_id = item
+    # Item details
+    item_name, item_description, item_price, lender_id = (
+        item  # lender_id is the UserID of the owner of the item
+    )
 
     if request.method == "POST":
         start_date = request.form.get("StartDate")
@@ -216,7 +248,7 @@ def borrow_item(ItemID):
         INSERT INTO dbo.listings (BorrowerID, LenderID, ItemID, StartDate, EndDate, ReturnFlag)
         VALUES (?, ?, ?, ?, ?, 0)
         """
-        cursor.execute(query, (borrower_id, lender_id, ItemID, start_date, end_date))
+        cursor.execute(query, (borrower_id, lender_id, item_id, start_date, end_date))
         conn.commit()
         conn.close()
 
@@ -224,13 +256,15 @@ def borrow_item(ItemID):
         return redirect(url_for("listing"))
 
     conn.close()
-    # Render the template with the fetched item details
-    return render_template("borrow_item.html", 
-                           item_name=item_name, 
-                           item_description=item_description, 
-                           item_price=item_price, 
-                           LenderID=lender_id, 
-                           item_id=ItemID)
+    return render_template(
+        "borrow_item.html",
+        item_name=item_name,
+        item_description=item_description,
+        item_price=item_price,
+        item_id=item_id,
+        LenderID=lender_id,
+    )
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -239,7 +273,7 @@ def login():
         password = request.form.get("password")
 
         # Sanitize email input
-        email = re.sub(r'[^\w\.\@]', '', email)
+        email = re.sub(r"[^\w\.\@]", "", email)
 
         # Connect to the database
         conn = get_db_connection()
@@ -249,7 +283,7 @@ def login():
                 query = "SELECT * FROM dbo.users WHERE Email = ?"
                 cursor.execute(query, (email,))
                 user = cursor.fetchone()
-                
+
                 if user and check_password_hash(user.Password, password):
                     # Login successful
                     session["user_id"] = user.UserID  # Store user ID in session
@@ -277,35 +311,51 @@ def logout():
 def profile():
     user_id = session.get("user_id")
     if not user_id:
-        return redirect(url_for("login"))  # Redirect to login if the user is not logged in
-    
+        return redirect(
+            url_for("login")
+        )  # Redirect to login if the user is not logged in
+
     conn = get_db_connection()
     cursor = conn.cursor()
 
     # Fetch user details
-    cursor.execute("SELECT FirstName, LastName FROM dbo.users WHERE UserID = ?", (user_id,))
+    cursor.execute(
+        "SELECT FirstName, LastName FROM dbo.users WHERE UserID = ?", (user_id,)
+    )
     user = cursor.fetchone()
 
     # Fetch the listings created by the user (items they listed)
-    cursor.execute("""
+    cursor.execute(
+        """
         SELECT ItemID, ItemName, Description 
         FROM dbo.items 
         WHERE UserID = ?
-    """, (user_id,))
+    """,
+        (user_id,),
+    )
     user_listings = cursor.fetchall()
 
     # Fetch the items borrowed by the user
-    cursor.execute("""
+    cursor.execute(
+        """
         SELECT i.ItemName, i.Description, l.StartDate, l.EndDate 
         FROM dbo.listings l
         JOIN dbo.items i ON l.ItemID = i.ItemID
         WHERE l.BorrowerID = ?
-    """, (user_id,))
+    """,
+        (user_id,),
+    )
     borrowed_items = cursor.fetchall()
 
     conn.close()
 
-    return render_template("profile.html", user=user, user_listings=user_listings, borrowed_items=borrowed_items)
+    return render_template(
+        "profile.html",
+        user=user,
+        user_listings=user_listings,
+        borrowed_items=borrowed_items,
+    )
+
 
 @app.route("/update_item/<int:item_id>", methods=["GET", "POST"])
 def update_item(item_id):
@@ -313,57 +363,90 @@ def update_item(item_id):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Fetch the item to check if it belongs to the user and is not being borrowed
-    cursor.execute("SELECT LenderID, BorrowerID FROM dbo.items WHERE ItemID = ?", (item_id,))
-    item = cursor.fetchone()
+    # Check if the item is currently listed (i.e., borrowed)
+    cursor.execute(
+        "SELECT LenderID, BorrowerID FROM dbo.listings WHERE ItemID = ?", (item_id,)
+    )
+    listing = cursor.fetchone()
 
-    if not item or item.LenderID != user_id:
-        return "Unauthorized", 403
-
-    if item.BorrowerID:
-        flash("You cannot update this item while it is being borrowed.", "error")
+    # Allow update only if the item is not in the listings table
+    if listing:
+        flash("You cannot update this item because it is currently borrowed.", "error")
         return redirect(url_for("profile"))
 
+    # Fetch item details from the items table
+    cursor.execute(
+        "SELECT Itemname, Description FROM dbo.items WHERE ItemID = ?", (item_id,)
+    )
+    item_details = cursor.fetchone()
+
+    if not item_details:
+        flash("Item not found.", "error")
+        return redirect(url_for("profile"))
+
+    # If the request method is POST, update the item (only name and description)
     if request.method == "POST":
         item_name = request.form.get("item_name")
         description = request.form.get("description")
-        cursor.execute("UPDATE dbo.items SET ItemName = ?, Description = ? WHERE ItemID = ?", (item_name, description, item_id))
+
+        # Ensure that item_name and description are not empty
+        if not item_name or not description:
+            flash("Item name and description are required.", "error")
+            return redirect(url_for("update_item", item_id=item_id))
+
+        # Update the item details in the database
+        cursor.execute(
+            "UPDATE dbo.items SET Itemname = ?, Description = ? WHERE ItemID = ?",
+            (item_name, description, item_id),
+        )
         conn.commit()
+        conn.close()
+
+        # Redirect to the profile page after updating the item
+        flash("Item updated successfully.", "info")
         return redirect(url_for("profile"))
 
     conn.close()
+
+    # Pass the item details to the template
+    item = {
+        "ItemID": item_id,
+        "Itemname": item_details.Itemname,
+        "Description": item_details.Description,
+    }
     return render_template("update_item.html", item=item)
 
 
 @app.route("/delete_item/<int:item_id>", methods=["POST"])
 def delete_item(item_id):
-    user_id = session.get("user_id")  # The currently logged-in user
+    user_id = session.get("user_id")
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Fetch the item to check if it belongs to the user (Lender)
-    cursor.execute("SELECT UserID FROM dbo.items WHERE ItemID = ?", (item_id,))
-    item = cursor.fetchone()
+    # Fetch the listing details to check if the item is borrowed or not
+    cursor.execute(
+        "SELECT LenderID, BorrowerID FROM dbo.listings WHERE ItemID = ?", (item_id,)
+    )
+    listing = cursor.fetchone()
 
-    if not item or item[0] != user_id:  # item[0] is UserID (the lender)
-        return "Unauthorized", 403
+    # If the item is listed and the current user is not the lender, unauthorized access
+    if listing and listing.LenderID != user_id:
+        flash("Unauthorized to delete this item.", "error")
+        return redirect(url_for("profile"))
 
-    # Check if the item is currently being borrowed in the listings table
-    cursor.execute("SELECT BorrowerID FROM dbo.listings WHERE ItemID = ? AND ReturnFlag = 0", (item_id,))
-    borrowing = cursor.fetchone()
-
-    if borrowing:
+    # If the item is being borrowed, deny deletion
+    if listing and listing.BorrowerID:
         flash("You cannot delete this item while it is being borrowed.", "error")
         return redirect(url_for("profile"))
 
-    # Proceed to delete the item if it's not being borrowed
+    # If there is no issue, delete the item from the items table
     cursor.execute("DELETE FROM dbo.items WHERE ItemID = ?", (item_id,))
     conn.commit()
     conn.close()
+
     flash("Item deleted successfully.", "info")
     return redirect(url_for("profile"))
 
 
-
 if __name__ == "__main__":
-    app.run(debug=True)    # Enable debug first so can track errors
+    app.run(debug=True)  # Enable debug first so can track errors
