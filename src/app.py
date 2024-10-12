@@ -86,10 +86,9 @@ def listing():
     if conn:
         try:
             cursor = conn.cursor()
-            # Assuming there is a table called 'items' that stores the listings
+            # Updated SQL query to fetch Price as well
             query = """
-            SELECT ItemName, Price FROM dbo.items
-            LIMIT 20
+            SELECT TOP 20 ItemName, Description, Price FROM dbo.items
             """
             cursor.execute(query)
             listings = cursor.fetchall()  # Fetch the first set of listings
@@ -282,11 +281,11 @@ def profile():
     cursor.execute("SELECT FirstName, LastName FROM dbo.users WHERE UserID = ?", (user_id,))
     user = cursor.fetchone()
 
-    # Fetch the listings created by the user
+    # Fetch the listings created by the user (items they listed)
     cursor.execute("""
-        SELECT ItemID, ItemName, Description, BorrowerID 
+        SELECT ItemID, ItemName, Description 
         FROM dbo.items 
-        WHERE LenderID = ?
+        WHERE UserID = ?
     """, (user_id,))
     user_listings = cursor.fetchall()
 

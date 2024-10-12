@@ -46,9 +46,8 @@
         </div>
     </section>
 
-    <!-- Section to view existing listings with scroll -->
     <section id="listings">
-        <div class="container" , align="center">
+        <div class="container" align="center">
             <h2>Available Items to Loan</h2>
 
             {% if listings %}
@@ -56,8 +55,9 @@
                 <!-- Loop through listings if available -->
                 {% for item in listings %}
                 <div class="listing-box">
-                    <h3>{{ item.name }}</h3>
-                    <p>{{ item.description }}</p>
+                    <h3>{{ item[0] }}</h3> <!-- ItemName -->
+                    <p>{{ item[1] }}</p> <!-- Description -->
+                    <p>Price: ${{ item[2] }}</p> <!-- Price -->
                 </div>
                 {% endfor %}
             </div>
@@ -66,6 +66,8 @@
             {% endif %}
         </div>
     </section>
+
+
 
     <footer>
         <div class="container">
