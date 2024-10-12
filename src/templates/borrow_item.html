@@ -21,13 +21,11 @@
                     <li><a href="{{ url_for('listing') }}">Listings</a></li>
                     <li><a href="{{ url_for('about') }}">About</a></li>
                     <li><a href="{{ url_for('contact') }}">Contact</a></li>
-            
+
                     {% if session.get('user_id') %}
-                    <!-- If the user is logged in, show the logout link -->
                     <li><a href="{{ url_for('logout') }}">Logout</a></li>
                     <li><a href="{{ url_for('borrow_item') }}">Items Borrowed</a></li>
                     {% else %}
-                    <!-- If the user is not logged in, show the login and register links -->
                     <li><a href="{{ url_for('login') }}">Login</a></li>
                     <li><a href="{{ url_for('register') }}">Register here!</a></li>
                     {% endif %}
@@ -40,22 +38,22 @@
         <div class="container">
             <form action="{{ url_for('borrow_item', item_id=item_id) }}" method="POST">
                 <div class="form-group">
-                    <label for="start_date">Start Date:</label>
-                    <input type="date" id="start_date" name="start_date" required>
+                    <label for="StartDate">Start Date:</label>
+                    <input type="date" id="StartDate" name="StartDate" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="end_date">End Date:</label>
-                    <input type="date" id="end_date" name="end_date" required>
+                    <label for="EndDate">End Date:</label>
+                    <input type="date" id="EndDate" name="EndDate" required>
                 </div>
 
                 <div class="form-group">
                     <label for="total_price">Total Price:</label>
-                    <input type="text" id="total_price" readonly> <!-- This will be calculated dynamically with JS -->
+                    <input type="text" id="total_price" readonly> <!-- Calculated dynamically with JS -->
                 </div>
 
-                <input type="hidden" name="borrower_id" value="{{ borrower_id }}"> <!-- Fetch logged-in user's ID -->
-                <input type="hidden" name="lender_id" value="{{ lender_id }}"> <!-- Fetch lender ID -->
+                <!-- Remove borrower_id from the form since we get it from session -->
+                <input type="hidden" name="lender_id" value="{{ LenderID }}"> <!-- Fetch lender ID -->
 
                 <button type="submit">Borrow Item</button>
             </form>
@@ -69,7 +67,6 @@
     </footer>
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-
 </body>
 
 </html>

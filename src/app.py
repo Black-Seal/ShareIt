@@ -85,8 +85,8 @@ def listing():
             cursor = conn.cursor()
             # Assuming there is a table called 'items' that stores the listings
             query = """
-            SELECT TOP 10 * FROM dbo.items
-            ORDER BY ItemID DESC
+            SELECT ItemName, Price FROM dbo.items
+            LIMIT 20
             """
             cursor.execute(query)
             listings = cursor.fetchall()  # Fetch the first set of listings
@@ -124,7 +124,7 @@ def load_more_listings():
             listings_data = [
                 {
                     'name': listing.ItemName,
-                    'description': listing.ItemDescription
+                    'price': listing.Price
                     # Add other necessary fields here
                 } for listing in listings
             ]
@@ -138,50 +138,91 @@ def load_more_listings():
     
     return {'listings': listings_data}
 
-
 @app.route('/listitem', methods=['GET', 'POST'])
 def listitem():
-    # Logic to render the page where users can add a new listing
-    return render_template('listitem.html')  # Assuming this is the page for adding a new listing
+    if request.method == 'POST':
+        # Check if user is logged in
+        user_id = session.get('user_id')
+        if not user_id:
+            return redirect(url_for('login'))  # Redirect to login if user is not logged in
 
-@app.route("/borrow_item/<int:item_id>", methods=["GET", "POST"])
-def borrow_item(item_id):
+        # Retrieve form data
+        item_name = request.form.get('ItemName')
+        item_description = request.form.get('Description')
+        item_price = request.form.get('Price')
+
+        # Validate that the data is present and correct
+        if not item_name or not item_description or not item_price:
+            return "Please fill in all fields", 400  # Error message for missing fields
+
+        # Connect to the database
+        conn = get_db_connection()
+        if conn:
+            try:
+                cursor = conn.cursor()
+                # Insert the new listing into the `items` table
+                query = """
+                INSERT INTO dbo.items (ItemName, Description, Price, UserID)
+                VALUES (?, ?, ?, ?)
+                """
+                cursor.execute(query, (item_name, item_description, item_price, user_id))
+                conn.commit()
+            except Exception as e:
+                print("Error inserting listing:", e)
+                return "Failed to add listing", 500  # Error message for DB insertion issues
+            finally:
+                conn.close()
+
+            return redirect(url_for('listing'))  # Redirect to the listing page after successful addition
+
+    # Render the listing form for GET requests
+    return render_template('listitem.html')
+
+@app.route("/borrow_item/<int:ItemID>", methods=["GET", "POST"])
+def borrow_item(ItemID):
+    # Check if the user is logged in
+    borrower_id = session.get('user_id')
+    if not borrower_id:
+        flash("You must be logged in to borrow an item", "error")
+        return redirect(url_for('login'))
+
     # Connect to the database
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Fetch the item details
-    cursor.execute("SELECT Item_Name, Description, Price FROM dbo.Items WHERE ItemID = ?", (item_id,))
+    # Fetch the item details including the LenderID
+    cursor.execute("SELECT ItemName, Description, Price, UserID FROM dbo.Items WHERE ItemID = ?", (ItemID,))
     item = cursor.fetchone()
     if not item:
         return "Item not found", 404
 
-    # If form is submitted, process the borrowing
+    # Item details
+    item_name, item_description, item_price, lender_id = item  # lender_id is the UserID of the owner of the item
+
     if request.method == "POST":
-        borrower_id = request.form.get("borrower_id")  # Fetch the borrower (logged-in user ID)
-        lender_id = request.form.get("lender_id")      # Assuming you already know the lender ID from your logic
-        start_date = request.form.get("start_date")
-        end_date = request.form.get("end_date")
+        start_date = request.form.get("StartDate")
+        end_date = request.form.get("EndDate")
 
         # Convert to date format and calculate the number of days
         start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")
         end_date_obj = datetime.strptime(end_date, "%Y-%m-%d")
         num_days = (end_date_obj - start_date_obj).days
-        total_price = num_days * item[2]  # item[2] is the price from the fetched item
+        total_price = num_days * item_price  # Calculate the total price
 
         # Insert into the Listings table
         query = """
         INSERT INTO dbo.listings (BorrowerID, LenderID, ItemID, StartDate, EndDate, ReturnFlag)
         VALUES (?, ?, ?, ?, ?, 0)
         """
-        cursor.execute(query, (borrower_id, lender_id, item_id, start_date, end_date))
+        cursor.execute(query, (borrower_id, lender_id, ItemID, start_date, end_date))
         conn.commit()
         conn.close()
 
-        return redirect(url_for("success_page"))  # Redirect to success or listing page after transaction
+        flash("Item borrowed successfully!", "success")
+        return redirect(url_for("listing"))
 
     conn.close()
-    return render_template("borrow_item.html", item=item)
+    return render_template("borrow_item.html", item=item, LenderID=lender_id, item_id=ItemID)
 
 
 @app.route("/login", methods=["GET", "POST"])
