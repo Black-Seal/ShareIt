@@ -152,3 +152,27 @@ input:invalid {
 input:valid {
     border-color: green;
 }
+
+/* Style for the container holding the listings */
+.listings-container {
+    display: flex;
+    flex-direction: column;
+    max-height: 600px; /* Optional: To limit height and allow scrolling */
+    overflow-y: auto;  /* Enables vertical scrolling */
+}
+
+/* Individual listing box style */
+.listing-box {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Infinite scrolling loading spinner */
+.loading-spinner {
+    text-align: center;
+    margin: 20px;
+}

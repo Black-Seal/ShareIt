@@ -66,7 +66,65 @@ def register():
 
 @app.route("/listing")
 def listing():
-    return render_template("listing.html")
+    conn = get_db_connection()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            # Assuming there is a table called 'items' that stores the listings
+            query = """
+            SELECT TOP 10 * FROM dbo.items
+            ORDER BY ItemID DESC
+            """
+            cursor.execute(query)
+            listings = cursor.fetchall()  # Fetch the first set of listings
+        except Exception as e:
+            print("Error fetching listings:", e)
+            listings = []
+        finally:
+            conn.close()
+    else:
+        listings = []
+    
+    # Render the listings in the template
+    return render_template("listing.html", listings=listings)
+
+@app.route("/load-more-listings")
+def load_more_listings():
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    offset = (page - 1) * per_page
+    
+    conn = get_db_connection()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            # Fetch the next set of listings
+            query = f"""
+            SELECT * FROM dbo.items
+            ORDER BY ItemID DESC
+            OFFSET {offset} ROWS
+            FETCH NEXT {per_page} ROWS ONLY
+            """
+            cursor.execute(query)
+            listings = cursor.fetchall()
+            # Convert the results to a JSON serializable format
+            listings_data = [
+                {
+                    'name': listing.ItemName,
+                    'description': listing.ItemDescription
+                    # Add other necessary fields here
+                } for listing in listings
+            ]
+        except Exception as e:
+            print("Error fetching more listings:", e)
+            listings_data = []
+        finally:
+            conn.close()
+    else:
+        listings_data = []
+    
+    return {'listings': listings_data}
+
 
 @app.route('/listitem', methods=['GET', 'POST'])
 def listitem():

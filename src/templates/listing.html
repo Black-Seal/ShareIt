@@ -15,19 +15,17 @@
         <div class="container">
             <h1>Listings for ShareIt</h1>
             <p>View and Add items</p>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('home') }}">Home</a></li>
+                    <li><a href="{{ url_for('listing') }}">Listings</a></li>
+                    <li><a href="{{ url_for('about') }}">About</a></li>
+                    <li><a href="{{ url_for('contact') }}">Contact</a></li>
+                    <li><a href="{{ url_for('register') }}">Register here!</a></li>
+                </ul>
+            </nav>
         </div>
     </header>
-
-    <!-- Section to view existing listings -->
-    <section id="listings">
-        <div class="container">
-            <h2>Available Items</h2>
-            <!-- You can loop over listings in Flask and display items here -->
-            <!-- Example: {% for item in listings %} -->
-            <!-- <div>{{ item.name }}</div> -->
-            <!-- {% endfor %} -->
-        </div>
-    </section>
 
     <!-- Button to add a new item -->
     <section id="add-item">
@@ -36,6 +34,27 @@
             <a href="{{ url_for('listitem') }}">
                 <button class="btn">Add New Item</button>
             </a>
+        </div>
+    </section>
+
+    <!-- Section to view existing listings with scroll -->
+    <section id="listings">
+        <div class="container", align="center">
+            <h2>Available Items to Loan</h2>
+    
+            {% if listings %}
+                <div class="listings-container">
+                    <!-- Loop through listings if available -->
+                    {% for item in listings %}
+                    <div class="listing-box">
+                        <h3>{{ item.name }}</h3>
+                        <p>{{ item.description }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No items are currently available for loan. Be the first to add an item!</p>
+            {% endif %}
         </div>
     </section>
 
