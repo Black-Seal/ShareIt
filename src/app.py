@@ -304,7 +304,7 @@ def profile():
     # We check if the item is currently borrowed (ReturnFlag = 0 means borrowed)
     cursor.execute(
         """
-        SELECT i.ItemID, i.ItemName, i.Description,
+        SELECT i.ItemID, i.ItemName, i.Description, i.Price,  -- Fetch Price here
                CASE
                    WHEN EXISTS (
                        SELECT 1 FROM dbo.listings l
