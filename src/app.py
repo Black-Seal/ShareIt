@@ -93,26 +93,35 @@ def register():
 
     return render_template("register.html")
 
-
 @app.route("/listing")
 def listing():
+    # Get the current user ID from the session
+    current_user_id = session.get("user_id")
+    if not current_user_id:
+        flash("You must be logged in to view the listings", "error")
+        return redirect(url_for("login"))
+    
     conn = get_db_connection()
+    listings = []
+    
     if conn:
         try:
             cursor = conn.cursor()
-            # Updated SQL query to fetch Price as well
+
+            # Updated SQL query to exclude items listed by the current user (Lender/UserID check)
             query = """
-            SELECT ItemID, ItemName, Description, Price FROM dbo.items
+            SELECT i.ItemID, i.ItemName, i.Description, i.Price
+            FROM dbo.items i
+            LEFT JOIN dbo.listings l ON i.ItemID = l.ItemID
+            WHERE (l.ItemID IS NULL OR l.ReturnFlag = 1)
+            AND i.UserID != ?
             """
-            cursor.execute(query)
-            listings = cursor.fetchall()  # Fetch the first set of listings
+            cursor.execute(query, (current_user_id,))
+            listings = cursor.fetchall()  # Fetch all available listings excluding the user's own items
         except Exception as e:
             print("Error fetching listings:", e)
-            listings = []
         finally:
             conn.close()
-    else:
-        listings = []
 
     # Render the listings in the template
     return render_template("listing.html", listings=listings)
@@ -166,6 +175,25 @@ def listitem():
     # Render the listing form for GET requests
     return render_template("listitem.html")
 
+@app.route("/return/<int:listing_id>")
+def return_item(listing_id):
+    conn = get_db_connection()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            # Update the record in dbo.listings to show the item has been returned
+            query = """
+            UPDATE dbo.listings SET ReturnFlag = TRUE WHERE ListingID = %s
+            """
+            cursor.execute(query, (listing_id,))
+            conn.commit()
+        except Exception as e:
+            print("Error returning item:", e)
+        finally:
+            conn.close()
+
+    # Redirect to the listing page or borrowed items page after return
+    return redirect(url_for('listing'))
 
 @app.route("/borrow_item/<int:item_id>", methods=["GET", "POST"])
 def borrow_item(item_id):
@@ -189,9 +217,7 @@ def borrow_item(item_id):
         return "Item not found", 404
 
     # Item details
-    item_name, item_description, item_price, lender_id = (
-        item  # lender_id is the UserID of the owner of the item
-    )
+    item_name, item_description, item_price, lender_id = item  # lender_id is the UserID of the owner of the item
 
     if request.method == "POST":
         start_date = request.form.get("StartDate")
@@ -203,18 +229,21 @@ def borrow_item(item_id):
         num_days = (end_date_obj - start_date_obj).days
         total_price = num_days * item_price  # Calculate the total price
 
-        # Insert into the Listings table
+        # Insert into the Listings table with ReturnFlag = 0 (borrowed)
         query = """
         INSERT INTO dbo.listings (BorrowerID, LenderID, ItemID, StartDate, EndDate, ReturnFlag)
         VALUES (?, ?, ?, ?, ?, 0)
         """
         cursor.execute(query, (borrower_id, lender_id, item_id, start_date, end_date))
         conn.commit()
+
+        # Close the connection
         conn.close()
 
         flash("Item borrowed successfully!", "success")
         return redirect(url_for("listing"))
 
+    # Close the connection
     conn.close()
     return render_template(
         "borrow_item.html",
@@ -224,7 +253,6 @@ def borrow_item(item_id):
         item_id=item_id,
         LenderID=lender_id,
     )
-
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
