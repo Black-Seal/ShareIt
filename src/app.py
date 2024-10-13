@@ -271,9 +271,23 @@ def borrow_item(item_id):
         start_date = request.form.get("StartDate")
         end_date = request.form.get("EndDate")
 
-        # Convert to date format and calculate the number of days
+        # Convert to date format
         start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")
         end_date_obj = datetime.strptime(end_date, "%Y-%m-%d")
+
+        # Check if end date is earlier than start date
+        if end_date_obj < start_date_obj:
+            flash("End date cannot be earlier than start date", "error")
+            return render_template(
+                "borrow_item.html",
+                item_name=item_name,
+                item_description=item_description,
+                item_price=item_price,
+                item_id=item_id,
+                LenderID=lender_id,
+            )
+
+        # Calculate the number of days and the total price
         num_days = (end_date_obj - start_date_obj).days
         total_price = num_days * item_price  # Calculate the total price
 
@@ -290,6 +304,7 @@ def borrow_item(item_id):
 
         flash("Item borrowed successfully!", "success")
         return redirect(url_for("listing"))
+
 
     # Close the connection
     conn.close()
@@ -555,7 +570,7 @@ if __name__ == "__main__":
         scheduler = BackgroundScheduler()
 
         # Schedule the calculate_fines function to run daily at midnight
-        scheduler.add_job(calculate_fines, 'cron', hour=0, minute=0)
+        scheduler.add_job(calculate_fines, 'cron', hour=14, minute=17)
 
         # Start the scheduler
         scheduler.start()

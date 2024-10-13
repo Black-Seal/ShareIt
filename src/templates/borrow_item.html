@@ -34,6 +34,20 @@
 
     <main>
         <div class="container">
+
+            <!-- Flash message section -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
             <h1>{{ item_name }}</h1> <!-- Item name -->
             <p>{{ item_description }}</p> <!-- Item description -->
             <p>Price per day: $<span id="price_per_day">{{ item_price }}</span></p> <!-- Item price -->
