@@ -175,26 +175,6 @@ def listitem():
     # Render the listing form for GET requests
     return render_template("listitem.html")
 
-@app.route("/return/<int:listing_id>")
-def return_item(listing_id):
-    conn = get_db_connection()
-    if conn:
-        try:
-            cursor = conn.cursor()
-            # Update the record in dbo.listings to show the item has been returned
-            query = """
-            UPDATE dbo.listings SET ReturnFlag = TRUE WHERE ListingID = %s
-            """
-            cursor.execute(query, (listing_id,))
-            conn.commit()
-        except Exception as e:
-            print("Error returning item:", e)
-        finally:
-            conn.close()
-
-    # Redirect to the listing page or borrowed items page after return
-    return redirect(url_for('listing'))
-
 @app.route("/borrow_item/<int:item_id>", methods=["GET", "POST"])
 def borrow_item(item_id):
     # Check if the user is logged in
@@ -344,27 +324,26 @@ def profile():
         borrowed_items=borrowed_items,
     )
 
-
 @app.route("/update_item/<int:item_id>", methods=["GET", "POST"])
 def update_item(item_id):
     user_id = session.get("user_id")
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Check if the item is currently listed (i.e., borrowed)
+    # Check if the item is currently borrowed (ReturnFlag = 0)
     cursor.execute(
-        "SELECT LenderID, BorrowerID FROM dbo.listings WHERE ItemID = ?", (item_id,)
+        "SELECT LenderID, BorrowerID, ReturnFlag FROM dbo.listings WHERE ItemID = ?", (item_id,)
     )
     listing = cursor.fetchone()
 
-    # Allow update only if the item is not in the listings table
-    if listing:
+    # Prevent update if the item is currently borrowed (ReturnFlag = 0)
+    if listing and listing[2] == 0:
         flash("You cannot update this item because it is currently borrowed.", "error")
         return redirect(url_for("profile"))
 
     # Fetch item details from the items table
     cursor.execute(
-        "SELECT Itemname, Description FROM dbo.items WHERE ItemID = ?", (item_id,)
+        "SELECT ItemName, Description FROM dbo.items WHERE ItemID = ?", (item_id,)
     )
     item_details = cursor.fetchone()
 
@@ -384,7 +363,7 @@ def update_item(item_id):
 
         # Update the item details in the database
         cursor.execute(
-            "UPDATE dbo.items SET Itemname = ?, Description = ? WHERE ItemID = ?",
+            "UPDATE dbo.items SET ItemName = ?, Description = ? WHERE ItemID = ?",
             (item_name, description, item_id),
         )
         conn.commit()
@@ -399,11 +378,10 @@ def update_item(item_id):
     # Pass the item details to the template
     item = {
         "ItemID": item_id,
-        "Itemname": item_details.Itemname,
+        "ItemName": item_details.ItemName,
         "Description": item_details.Description,
     }
     return render_template("update_item.html", item=item)
-
 
 @app.route("/delete_item/<int:item_id>", methods=["POST"])
 def delete_item(item_id):
@@ -413,26 +391,31 @@ def delete_item(item_id):
 
     # Fetch the listing details to check if the item is borrowed or not
     cursor.execute(
-        "SELECT LenderID, BorrowerID FROM dbo.listings WHERE ItemID = ?", (item_id,)
+        "SELECT LenderID, BorrowerID, ReturnFlag FROM dbo.listings WHERE ItemID = ?", (item_id,)
     )
     listing = cursor.fetchone()
 
     # If the item is listed and the current user is not the lender, unauthorized access
-    if listing and listing.LenderID != user_id:
+    if listing and listing[0] != user_id:
         flash("Unauthorized to delete this item.", "error")
         return redirect(url_for("profile"))
 
-    # If the item is being borrowed, deny deletion
-    if listing and listing.BorrowerID:
+    # If the item is currently borrowed (ReturnFlag = 0), deny deletion
+    if listing and listing[2] == 0:
         flash("You cannot delete this item while it is being borrowed.", "error")
         return redirect(url_for("profile"))
 
-    # If there is no issue, delete the item from the items table
+    # Step 1: Delete any related listings that reference this item
+    cursor.execute("DELETE FROM dbo.listings WHERE ItemID = ?", (item_id,))
+    conn.commit()
+
+    # Step 2: Delete the item from the items table
     cursor.execute("DELETE FROM dbo.items WHERE ItemID = ?", (item_id,))
     conn.commit()
+
     conn.close()
 
-    flash("Item deleted successfully.", "info")
+    flash("Item and its associated listings deleted successfully.", "info")
     return redirect(url_for("profile"))
 
 @app.route("/mark_as_returned", methods=["POST"])
