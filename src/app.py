@@ -343,7 +343,7 @@ def update_item(item_id):
 
     # Fetch item details from the items table
     cursor.execute(
-        "SELECT ItemName, Description FROM dbo.items WHERE ItemID = ?", (item_id,)
+        "SELECT ItemName, Description, Price FROM dbo.items WHERE ItemID = ?", (item_id,)
     )
     item_details = cursor.fetchone()
 
@@ -351,20 +351,21 @@ def update_item(item_id):
         flash("Item not found.", "error")
         return redirect(url_for("profile"))
 
-    # If the request method is POST, update the item (only name and description)
+    # If the request method is POST, update the item (name, description, and price)
     if request.method == "POST":
         item_name = request.form.get("item_name")
         description = request.form.get("description")
+        price = request.form.get("price")  # Fetch the price from the form
 
-        # Ensure that item_name and description are not empty
-        if not item_name or not description:
-            flash("Item name and description are required.", "error")
+        # Ensure that item_name, description, and price are not empty
+        if not item_name or not description or not price:
+            flash("Item name, description, and price are required.", "error")
             return redirect(url_for("update_item", item_id=item_id))
 
-        # Update the item details in the database
+        # Update the item details in the database (including price)
         cursor.execute(
-            "UPDATE dbo.items SET ItemName = ?, Description = ? WHERE ItemID = ?",
-            (item_name, description, item_id),
+            "UPDATE dbo.items SET ItemName = ?, Description = ?, Price = ? WHERE ItemID = ?",
+            (item_name, description, price, item_id),
         )
         conn.commit()
         conn.close()
@@ -380,6 +381,7 @@ def update_item(item_id):
         "ItemID": item_id,
         "ItemName": item_details.ItemName,
         "Description": item_details.Description,
+        "Price": item_details.Price,  # Include price
     }
     return render_template("update_item.html", item=item)
 
