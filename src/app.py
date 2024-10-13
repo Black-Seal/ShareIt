@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
+from apscheduler.schedulers.background import BackgroundScheduler
 import pyodbc
 import re
 import os
@@ -31,6 +32,65 @@ def get_db_connection():
         print("Error connecting to database:", e)
         return None
 
+def calculate_fines():
+    conn = get_db_connection()
+    if conn is None:
+        print("Failed to connect to the database.")
+        return
+
+    cursor = conn.cursor()
+    current_date = datetime.now()
+
+    # Fetch overdue items
+    cursor.execute(
+        """
+        SELECT l.ListingID, l.BorrowerID, i.Price, DATEDIFF(day, l.EndDate, ?) AS DaysOverdue
+        FROM dbo.listings l
+        JOIN dbo.items i ON l.ItemID = i.ItemID
+        WHERE l.ReturnFlag = 0 AND l.EndDate < ?
+        """,
+        (current_date, current_date)
+    )
+    overdue_items = cursor.fetchall()
+
+    # Loop through overdue items
+    for overdue in overdue_items:
+        listing_id = overdue.ListingID
+        borrower_id = overdue.BorrowerID
+        days_overdue = overdue.DaysOverdue
+        fine_amount = overdue.Price * 2 * days_overdue  # 200% of price per day overdue
+
+        # Check if a fine already exists for this ListingID
+        cursor.execute(
+            "SELECT FineID, FineAmount FROM dbo.fines WHERE ListingID = ?",
+            (listing_id,)
+        )
+        existing_fine = cursor.fetchone()
+
+        if existing_fine:
+            # Fine already exists, update the fine amount
+            fine_id = existing_fine.FineID
+            cursor.execute(
+                """
+                UPDATE dbo.fines
+                SET FineAmount = ?
+                WHERE FineID = ?
+                """,
+                (fine_amount, fine_id)
+            )
+        else:
+            # No fine exists, insert a new fine
+            cursor.execute(
+                """
+                INSERT INTO dbo.fines (ListingID, BorrowerID, FineAmount)
+                VALUES (?, ?, ?)
+                """,
+                (listing_id, borrower_id, fine_amount)
+            )
+
+        conn.commit()  # Commit each update/insert
+
+    conn.close()
 
 @app.route("/")
 def home():
@@ -287,9 +347,7 @@ def logout():
 def profile():
     user_id = session.get("user_id")
     if not user_id:
-        return redirect(
-            url_for("login")
-        )  # Redirect to login if the user is not logged in
+        return redirect(url_for("login"))  # Redirect to login if the user is not logged in
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -301,10 +359,9 @@ def profile():
     user = cursor.fetchone()
 
     # Fetch the listings created by the user (items they listed)
-    # We check if the item is currently borrowed (ReturnFlag = 0 means borrowed)
     cursor.execute(
         """
-        SELECT i.ItemID, i.ItemName, i.Description, i.Price,  -- Fetch Price here
+        SELECT i.ItemID, i.ItemName, i.Description, i.Price,
                CASE
                    WHEN EXISTS (
                        SELECT 1 FROM dbo.listings l
@@ -331,6 +388,19 @@ def profile():
     )
     borrowed_items = cursor.fetchall()
 
+    # Fetch the fines incurred by the user
+    cursor.execute(
+        """
+        SELECT f.FineAmount, f.FineDate, i.ItemName, i.Price, l.EndDate
+        FROM dbo.fines f
+        JOIN dbo.listings l ON f.ListingID = l.ListingID
+        JOIN dbo.items i ON l.ItemID = i.ItemID
+        WHERE f.BorrowerID = ?
+        """,
+        (user_id,),
+    )
+    user_fines = cursor.fetchall()
+
     conn.close()
 
     return render_template(
@@ -338,6 +408,7 @@ def profile():
         user=user,
         user_listings=user_listings,
         borrowed_items=borrowed_items,
+        user_fines=user_fines  # Add the fines data to the template
     )
 
 @app.route("/update_item/<int:item_id>", methods=["GET", "POST"])
@@ -478,4 +549,16 @@ def mark_as_returned():
     return redirect(url_for("profile"))
 
 if __name__ == "__main__":
-    app.run(debug=True)  # Enable debug first so can track errors
+
+    # Only start the scheduler if we're not in debug mode or it is the first process (to avoid double runs)
+    if not app.debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+        scheduler = BackgroundScheduler()
+
+        # Schedule the calculate_fines function to run daily at midnight
+        scheduler.add_job(calculate_fines, 'cron', hour=0, minute=0)
+
+        # Start the scheduler
+        scheduler.start()
+
+    # Run the Flask app
+    app.run(debug=True)

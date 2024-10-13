@@ -95,9 +95,36 @@
             </table>
             <button type="submit" class="btn">Mark as Returned</button>
         </form>
-
         {% else %}
         <p>You haven't borrowed any items yet.</p>
+        {% endif %}
+    </section>
+
+    <section>
+        <h2>Fines Incurred</h2>
+        {% if user_fines %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Fine Amount</th>
+                    <th>Fine Date</th>
+                    <th>Original End Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fine in user_fines %}
+                <tr>
+                    <td>{{ fine.ItemName }}</td>
+                    <td>${{ fine.FineAmount }}</td>
+                    <td>{{ fine.FineDate }}</td>
+                    <td>{{ fine.EndDate }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>You haven't incurred any fines yet.</p>
         {% endif %}
     </section>
 
