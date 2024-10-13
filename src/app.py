@@ -570,7 +570,7 @@ if __name__ == "__main__":
         scheduler = BackgroundScheduler()
 
         # Schedule the calculate_fines function to run daily at midnight
-        scheduler.add_job(calculate_fines, 'cron', hour=14, minute=17)
+        scheduler.add_job(calculate_fines, 'cron', hour=0, minute=0)
 
         # Start the scheduler
         scheduler.start()
