@@ -22,7 +22,7 @@
 - **Item Listing**: Users can list items for others to borrow.
 - **Borrowing**: Browse the available listings and borrow items from your community.
 - **User Registration**: Users can sign up to create accounts and manage their listings.
-- **Item Reviews**: Lenders and borrowers can review each transaction.
+- **Event Scheduler**: Automatically calculate fines and updates daily. 
 - **Sustainable Living**: Promote eco-friendly sharing and reduce waste in the community.
 
 ## Technologies Used
