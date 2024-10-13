@@ -108,11 +108,19 @@ def listing():
         try:
             cursor = conn.cursor()
 
-            # Updated SQL query to exclude items listed by the current user (Lender/UserID check)
+            # Updated SQL query to check the latest return flag for each item
             query = """
             SELECT i.ItemID, i.ItemName, i.Description, i.Price
             FROM dbo.items i
-            LEFT JOIN dbo.listings l ON i.ItemID = l.ItemID
+            LEFT JOIN (
+                SELECT l1.ItemID, l1.ReturnFlag
+                FROM dbo.listings l1
+                JOIN (
+                    SELECT ItemID, MAX(ListingID) AS LatestListingID
+                    FROM dbo.listings
+                    GROUP BY ItemID
+                ) l2 ON l1.ItemID = l2.ItemID AND l1.ListingID = l2.LatestListingID
+            ) l ON i.ItemID = l.ItemID
             WHERE (l.ItemID IS NULL OR l.ReturnFlag = 1)
             AND i.UserID != ?
             """
@@ -293,12 +301,20 @@ def profile():
     user = cursor.fetchone()
 
     # Fetch the listings created by the user (items they listed)
+    # We check if the item is currently borrowed (ReturnFlag = 0 means borrowed)
     cursor.execute(
         """
-        SELECT ItemID, ItemName, Description 
-        FROM dbo.items 
-        WHERE UserID = ?
-    """,
+        SELECT i.ItemID, i.ItemName, i.Description,
+               CASE
+                   WHEN EXISTS (
+                       SELECT 1 FROM dbo.listings l
+                       WHERE l.ItemID = i.ItemID AND l.ReturnFlag = 0
+                   ) THEN 'Borrowed'
+                   ELSE 'Available'
+               END AS BorrowStatus
+        FROM dbo.items i
+        WHERE i.UserID = ?
+        """,
         (user_id,),
     )
     user_listings = cursor.fetchall()

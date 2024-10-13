@@ -39,6 +39,7 @@
                 <tr>
                     <th>Item Name</th>
                     <th>Description</th>
+                    <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -47,6 +48,7 @@
                 <tr>
                     <td>{{ listing.ItemName }}</td>
                     <td>{{ listing.Description }}</td>
+                    <td>{{ listing.BorrowStatus }}</td> <!-- Only shows the status -->
                     <td>
                         <a href="{{ url_for('update_item', item_id=listing.ItemID) }}" class="btn">Update</a>
                         <form action="{{ url_for('delete_item', item_id=listing.ItemID) }}" method="POST"
