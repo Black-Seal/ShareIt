@@ -326,10 +326,10 @@ def profile():
     # Fetch the items borrowed by the user
     cursor.execute(
         """
-        SELECT i.ItemName, i.Description, l.StartDate, l.EndDate 
+        SELECT i.ItemName, i.Description, l.StartDate, l.EndDate, l.ItemID
         FROM dbo.listings l
         JOIN dbo.items i ON l.ItemID = i.ItemID
-        WHERE l.BorrowerID = ?
+        WHERE l.BorrowerID = ? AND l.ReturnFlag = 0
     """,
         (user_id,),
     )
@@ -435,6 +435,46 @@ def delete_item(item_id):
     flash("Item deleted successfully.", "info")
     return redirect(url_for("profile"))
 
+@app.route("/mark_as_returned", methods=["POST"])
+def mark_as_returned():
+    # Get the BorrowerID from the session (user_id is the BorrowerID)
+    borrower_id = session.get("user_id")
+    
+    if not borrower_id:
+        return redirect(url_for("login"))  # Redirect if the user is not logged in
+
+    # Get the list of item IDs marked as returned
+    returned_items = request.form.getlist("return_items")
+
+    print(f"Returned items: {returned_items}")  # Debugging: Check what items were selected
+
+    if not returned_items or not all(returned_items):
+        flash("No items selected for return.", "error")
+        return redirect(url_for("profile"))
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Update the ReturnFlag to 1 (returned) for the selected items
+        query = """
+        UPDATE dbo.listings
+        SET ReturnFlag = 1
+        WHERE ItemID = ? AND BorrowerID = ?
+        """
+        for item_id in returned_items:
+            print(f"Updating ReturnFlag for ItemID: {item_id}, BorrowerID: {borrower_id}")  # Debugging
+            cursor.execute(query, (item_id, borrower_id))
+        
+        conn.commit()
+        flash("Items marked as returned successfully.", "success")
+    except Exception as e:
+        print("Error marking items as returned:", e)
+        flash("An error occurred while processing the return.", "error")
+    finally:
+        conn.close()
+
+    return redirect(url_for("profile"))
 
 if __name__ == "__main__":
     app.run(debug=True)  # Enable debug first so can track errors

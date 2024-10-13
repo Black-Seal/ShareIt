@@ -66,28 +66,37 @@
     <section>
         <h2>Items You Borrowed</h2>
         {% if borrowed_items %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Item Name</th>
-                    <th>Description</th>
-                    <th>Borrowing Period</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in borrowed_items %}
-                <tr>
-                    <td>{{ item.ItemName }}</td>
-                    <td>{{ item.Description }}</td>
-                    <td>From: {{ item.StartDate }} to {{ item.EndDate }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <form action="{{ url_for('mark_as_returned') }}" method="POST">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Description</th>
+                        <th>Borrowing Period</th>
+                        <th>Return</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in borrowed_items %}
+                    <tr>
+                        <td>{{ item.ItemName }}</td>
+                        <td>{{ item.Description }}</td>
+                        <td>From: {{ item.StartDate }} to {{ item.EndDate }}</td>
+                        <td>
+                            <input type="checkbox" name="return_items" value="{{ item.ItemID }}">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button type="submit" class="btn">Mark as Returned</button>
+        </form>         
+        
         {% else %}
         <p>You haven't borrowed any items yet.</p>
         {% endif %}
     </section>
+    
 
     <footer>
         <p>&copy; 2024 ShareIt. All rights reserved.</p>
